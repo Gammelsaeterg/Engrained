@@ -1,0 +1,27 @@
+{
+  "Category": "",
+  "Description": "",
+  "EngineAssociation": "4.27",
+  "FileVersion": 3,
+  "Modules": [
+    {
+      "AdditionalDependencies": [
+        "Engine"
+      ],
+      "LoadingPhase": "Default",
+      "Name": "Engrained",
+      "Type": "Runtime"
+    }
+  ],
+  "Plugins": [
+    {
+      "Enabled": true,
+      "Name": "Water"
+    },
+    {
+      "Enabled": true,
+      "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/2f6439c2f9584f49809d9b13b16c2ba4",
+      "Name": "Substance"
+    }
+  ]
+}
