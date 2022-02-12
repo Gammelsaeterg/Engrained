@@ -46,7 +46,7 @@ void AShroobs::BeginPlay()
 	spawnPoint = GetActorLocation();
 	spawnRotation = GetActorRotation();
 	
-	ShroobSensingSphere->onOverlap.AddDynamic(this, &AShroobs::onOverlap);
+	
 	
 }
 
