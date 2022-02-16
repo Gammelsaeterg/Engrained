@@ -185,7 +185,7 @@ void AShroobs::Tick(float DeltaTime)
 				this->GetActorLocation() - FVector(0, 0, RayTraceLength),
 				FColor(255, 0, 0),
 				false,
-				0.f,
+				2.f,
 				0,
 				1.f
 			);
