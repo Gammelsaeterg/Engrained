@@ -55,11 +55,11 @@ void AShroobs::BeginPlay()
 //	ShroobSensingSphere->onOverlap.AddDynamic(this, &AShroobs::onOverlap);
 
 	if (movArea) {
-		UE_LOG(LogTemp, Warning, TEXT("%s Found: %s"), *GetName(), *movArea->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("%s Found: %s"), *GetName(), *movArea->GetName());
 		movAreaActor = Cast<AActor>(movArea);
 		MoveAreaVector = movAreaActor->GetActorLocation();
-		UE_LOG(LogTemp, Warning, TEXT("MoveAreaVector: %s"), *MoveAreaVector.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("%s ForwardVector: %s"), *GetName(),*GetActorForwardVector().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("MoveAreaVector: %s"), *MoveAreaVector.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("%s ForwardVector: %s"), *GetName(),*GetActorForwardVector().ToString());
 	}
 
 }
@@ -85,20 +85,20 @@ void AShroobs::MoveAreaCheck(float range)
 
 	AActor* ActorHit = HitResult.GetActor();
 	if (ActorHit) {
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *ActorHit->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *ActorHit->GetName());
 		if (ActorHit == movAreaActor) {
 			/* Actor is over its movement area */
 			Private_Rotation_Z = 0;
 			bRotateBack = false;
 			InitializeRotation = 0;
-			UE_LOG(LogTemp, Warning, TEXT("%s is currently over %s"), *GetName(), *movArea->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("%s is currently over %s"), *GetName(), *movArea->GetName());
 		}
 		else {
 		}
 	}
 	else {
 		/* Actor is NOT over its movement area */
-		UE_LOG(LogTemp, Error, TEXT("%s is currently over nothing"), *this->GetName());
+		//UE_LOG(LogTemp, Error, TEXT("%s is currently over nothing"), *this->GetName());
 		//RotateToVector();
 		Private_Rotation_Z = Rotation_Z;
 		bRotateBack = true;
