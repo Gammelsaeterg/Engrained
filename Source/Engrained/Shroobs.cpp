@@ -128,9 +128,8 @@ void AShroobs::RotateToVector()
 		dotProduct_Right = dotProduct(Right, Turn);
 		InitializeRotation++;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Dotproduct_right  : %f"), dotProduct_Right);
+	//UE_LOG(LogTemp, Warning, TEXT("Dotproduct_right  : %f"), dotProduct_Right);
 	
-	//float angle = (FGenericPlatformMath::Acos(a / (b * c))) * (180/PI);
 	//UE_LOG(LogTemp, Error, TEXT("Angle %f"), angle);
 
 	float rotationStrength = (
@@ -139,9 +138,8 @@ void AShroobs::RotateToVector()
 		);
 	//UE_LOG(LogTemp, Error, TEXT("RotationStrength: %f"), rotationStrength);
 
-
-	if (dotProduct_Forward < 0.98) {
-		if (dotProduct_Right > 0.1)
+	if (dotProduct_Forward < 1) {
+		if (dotProduct_Right >= 0)
 			AddActorLocalRotation(FRotator(0, Private_Rotation_Z * rotationStrength, 0));
 		else if (dotProduct_Right < 0)
 			AddActorLocalRotation(FRotator(0, -Private_Rotation_Z * rotationStrength, 0));
