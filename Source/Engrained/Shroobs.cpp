@@ -179,23 +179,21 @@ void AShroobs::Tick(float DeltaTime)
 			MoveAreaCheck(RayTraceLength);
 			
 			/* Draws debugline matching the raytrace */
-			DrawDebugLine(
-				GetWorld(),
-				this->GetActorLocation(),
-				this->GetActorLocation() - FVector(0, 0, RayTraceLength),
-				FColor(255, 0, 0),
-				false,
-				2.f,
-				0,
-				1.f
-			);
+			//DrawDebugLine(
+			//	GetWorld(),
+			//	this->GetActorLocation(),
+			//	this->GetActorLocation() - FVector(0, 0, RayTraceLength),
+			//	FColor(255, 0, 0),
+			//	false,
+			//	2.f,
+			//	0,
+			//	1.f
+			//);
 		}
 		RayTraceSeconds = 0;
 	}
 
 	if (bRotateBack) {
-
-
 		RotateToVector();
 	}
 	
