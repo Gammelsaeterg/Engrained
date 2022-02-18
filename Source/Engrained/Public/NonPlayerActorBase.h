@@ -23,6 +23,9 @@ protected:
 	FVector MoveAreaVector;
 	FVector CurrentLocation;
 
+	/* Testing field of vision */
+	FVector Line;
+
 	/* Movement Variables */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed = 70;

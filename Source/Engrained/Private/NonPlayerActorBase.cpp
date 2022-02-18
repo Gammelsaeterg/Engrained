@@ -43,6 +43,11 @@ void ANonPlayerActorBase::BeginPlay()
 		movAreaActor = Cast<AActor>(movArea);
 		MoveAreaVector = movAreaActor->GetActorLocation();
 	}
+	FVector Forward = GetActorForwardVector();
+	Line = FVector(100, 0, 0) * Forward;
+	FVector OldLine = Line;
+	Line.X = cos(45) * OldLine.X - sin(45) * OldLine.Y;
+	Line.Y = sin(45) * OldLine.X + cos(45) * OldLine.Y;
 }
 
 // Called every frame
@@ -50,16 +55,29 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector Forward = GetActorForwardVector();
 
-	//Forward = Forward / Forward;
-	//UE_LOG(LogTemp, Warning, TEXT("Forward: %s"), *Forward.ToString());
+	/* Den roterer, men det skjer alt for fort */
+	float angle = Private_Rotation_Z * (PI/180);
+	FVector OldLine = Line;
+	Line.X = cos(angle) * OldLine.X - sin(angle) * OldLine.Y;
+	Line.Y = sin(angle) * OldLine.X + cos(angle) * OldLine.Y;
 
 	DrawDebugLine(
 		GetWorld(),
 		GetActorLocation(),
-		GetActorLocation() + (FVector(100, 0, 0) * Forward),
+		GetActorLocation() + Line,
 		FColor(0, 255, 0),
+		false,
+		0,
+		0,
+		1.f
+	);
+	// Test for punkt
+	DrawDebugLine(
+		GetWorld(),
+		GetActorLocation() + FVector(0, 0, 100),
+		GetActorLocation() + FVector(0, 0, 100),
+		FColor(0, 0, 255),
 		false,
 		0,
 		0,
@@ -129,12 +147,18 @@ void ANonPlayerActorBase::RotateToVector()
 		180
 		);
 
+	Private_Rotation_Z = Rotation_Z * rotationStrength;
 	if (dotProduct_Forward < 1) {
-		if (dotProduct_Right >= 0)
-			AddActorLocalRotation(FRotator(0, Private_Rotation_Z * rotationStrength, 0));
-		else if (dotProduct_Right < 0)
-			AddActorLocalRotation(FRotator(0, -Private_Rotation_Z * rotationStrength, 0));
+		if (dotProduct_Right >= 0) {
+			AddActorLocalRotation(FRotator(0, Private_Rotation_Z, 0));
+		}
+		else if (dotProduct_Right < 0) {
+			Private_Rotation_Z = -Private_Rotation_Z;
+			AddActorLocalRotation(FRotator(0, Private_Rotation_Z, 0));
+		}
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Angle: %f"), Private_Rotation_Z);
+
 }
 
 float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
