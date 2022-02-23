@@ -21,20 +21,17 @@ public:
 
 
 protected:
-
-
-	
-
-
-
-	UFUNCTION()
-	void onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex);
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void ActorState(float deltatime) override;
+
+
 public:    
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+
 
 };

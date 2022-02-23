@@ -27,10 +27,33 @@ void AShroobs::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//spawnPoint = GetActorLocation();
-	//spawnRotation = GetActorRotation();
-	
-//	ShroobSensingSphere->onOverlap.AddDynamic(this, &AShroobs::onOverlap);
+
+}
+
+void AShroobs::ActorState(float deltatime)
+{
+	switch (states) {
+	case IDLE:	// Idle
+		break;
+	case SHOCK:	// Shocked
+		/* Skal gjøre en sjekk når den entrer SHOCK for å se om spilleren er der. 
+		*	Etter at shock timeren har gått ut så gjør den en til sjekk, 
+		*	hvis spilleren da fortsatt er der, så går den over til HOSTILE
+		*	Hvis ikke så går den til enten IDLE eller AWAREOFPLAYER */
+		UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
+		TimeShocked += deltatime;
+		if (TimeShocked > ShockTimer) {
+			UE_LOG(LogTemp, Display, TEXT("%s is Hostile!"), *GetName());
+			states = HOSTILE;
+		}
+		break;
+	case HOSTILE:	// Hostile
+		break;
+	case AWAREOFPLAYER:	// Aware of player
+		break;
+	default:
+		break;
+	}
 }
 
 // Called every frame
@@ -39,16 +62,20 @@ void AShroobs::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	//Seconds += DeltaTime;
-
+	
 	CurrentLocation = GetActorLocation();
 	CurrentLocation += GetActorForwardVector() * Speed * DeltaTime;
 	SetActorLocation(CurrentLocation);
 	
+	ActorState(DeltaTime);
+
+	//UE_LOG(LogTemp, Display, TEXT("Rotate: %s"), (bRotateBack ? TEXT("true") : TEXT("false")));
+	/* Movement across platform */
 	RayTraceSeconds += DeltaTime;
 	if (RayTraceSeconds > RayTraceTiming) {
 		if (RayTraceActive) {
 			MoveAreaCheck(RayTraceLength);
-			
+
 			/* Draws debugline matching the raytrace */
 			if (bDebugLine) {
 				DrawDebugLine(
@@ -65,9 +92,19 @@ void AShroobs::Tick(float DeltaTime)
 		}
 		RayTraceSeconds = 0;
 	}
-
 	if (bRotateBack) {
 		RotateToVector();
+	}
+
+	if (bDebugPlayerDetection)
+		DetectPlayer(DeltaTime);
+
+	if (bDetectPlayer) {
+		if (TimeDetected > DetectionTimer) {
+		}
+	}
+	else {
+		//TimeDetected = 0;
 	}
 }
 
@@ -78,16 +115,4 @@ void AShroobs::ImHit()
 
 
 
-void AShroobs::onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
-{
-	//AMina* Player = Cast<AMina>(OtherActor);
 
-	//if(Player)
-	//{
-	//	FVector MinaLocation = Player->MinaCurrentLocation;
-	//	RotationBack = FRotationMatrix::MakeFromX(MinaLocation-GetActorLocation()).Rotator();
-	//	SetActorRotation(RotationBack);
-	//	test = true;
-	//}
-}

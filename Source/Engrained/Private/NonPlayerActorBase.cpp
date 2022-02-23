@@ -8,6 +8,8 @@
 #include "GenericPlatform/GenericPlatformMath.h"
 #include "PxMathUtils.h"
 #include "DrawDebugHelpers.h"
+#include "../Mina.h"
+
 
 // Sets default values
 ANonPlayerActorBase::ANonPlayerActorBase()
@@ -23,31 +25,42 @@ ANonPlayerActorBase::ANonPlayerActorBase()
 	RootComponent = BoxCollider;
 
 	//Sensing Sphere. checking if there is a player near by
-	ShroobSensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
-	ShroobSensingSphere->SetupAttachment(GetRootComponent());
-	ShroobSensingSphere->InitSphereRadius(700.f);
+	SensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
+	SensingSphere->SetupAttachment(GetRootComponent());
 
 	// Set up our visible mesh
-	ShroobVisibleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShroobVisibleMesh"));
-	ShroobVisibleMesh->SetupAttachment(RootComponent);
-
+	VisibleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShroobVisibleMesh"));
+	VisibleMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void ANonPlayerActorBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//player = Cast<AActor>(GetWorld()->GetFirstPlayerController());
+	//if (!mina)
+	//	mina = GetWorld()->GetFirstPlayerController();
+	//if (mina)
+	//	player = Cast<AActor>(mina);
+	player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	SensingSphere->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::onOverlap);
+	SensingSphere->OnComponentEndOverlap.AddDynamic(this, &ANonPlayerActorBase::endOverlap);
 	
-	/* Finds area actor is supposed to move across */
+
+	/* Finds area actor to move across */
 	if (movArea) {
 		movAreaActor = Cast<AActor>(movArea);
 		MoveAreaVector = movAreaActor->GetActorLocation();
 	}
 	FVector Forward = GetActorForwardVector();
-	Line = FVector(100, 0, 0) * Forward;
-	FVector OldLine = Line;
-	Line.X = cos(45) * OldLine.X - sin(45) * OldLine.Y;
-	Line.Y = sin(45) * OldLine.X + cos(45) * OldLine.Y;
+
+	/* For å vise vision til Actor */
+	//Line = FVector(100, 0, 0) * Forward;
+	//FVector OldLine = Line;
+	//Line.X = cos(45) * OldLine.X - sin(45) * OldLine.Y;
+	//Line.Y = sin(45) * OldLine.X + cos(45) * OldLine.Y;
 }
 
 // Called every frame
@@ -56,22 +69,24 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
+	/* For å vise vision til Actor */
 	/* Den roterer, men det skjer alt for fort */
-	float angle = Private_Rotation_Z * (PI/180);
-	FVector OldLine = Line;
-	Line.X = cos(angle) * OldLine.X - sin(angle) * OldLine.Y;
-	Line.Y = sin(angle) * OldLine.X + cos(angle) * OldLine.Y;
+	//float angle = Private_Rotation_Z * (PI/180);
+	//FVector OldLine = Line;
+	//Line.X = cos(angle) * OldLine.X - sin(angle) * OldLine.Y;
+	//Line.Y = sin(angle) * OldLine.X + cos(angle) * OldLine.Y;
+	//DrawDebugLine(
+	//	GetWorld(),
+	//	GetActorLocation(),
+	//	GetActorLocation() + Line,
+	//	FColor(0, 255, 0),
+	//	false,
+	//	0,
+	//	0,
+	//	1.f
+	//);
 
-	DrawDebugLine(
-		GetWorld(),
-		GetActorLocation(),
-		GetActorLocation() + Line,
-		FColor(0, 255, 0),
-		false,
-		0,
-		0,
-		1.f
-	);
+
 	// Test for punkt
 	DrawDebugLine(
 		GetWorld(),
@@ -107,11 +122,12 @@ void ANonPlayerActorBase::MoveAreaCheck(float range)
 
 	AActor* ActorHit = HitResult.GetActor();
 	if (ActorHit) {
+		//UE_LOG(LogTemp, Display, TEXT("%s"), *ActorHit->GetName());
 		if (ActorHit == movAreaActor) {
 			/* Actor is over its movement area */
 			Private_Rotation_Z = 0;
 			bRotateBack = false;
-			InitializeRotation = 0;
+			//InitializeRotation = 0;
 		}
 		else {
 		}
@@ -137,10 +153,7 @@ void ANonPlayerActorBase::RotateToVector()
 	FVector Turn = MoveToVector - Current;
 
 	float dotProduct_Forward = dotProduct2D(Forward, Turn);
-	if (!InitializeRotation) {
-		dotProduct_Right = dotProduct2D(Right, Turn);
-		InitializeRotation++;
-	}
+	dotProduct_Right = dotProduct2D(Right, Turn);
 
 	float rotationStrength = (
 		(acosf(dotProduct_Forward) * (180 / PI)) /
@@ -157,8 +170,7 @@ void ANonPlayerActorBase::RotateToVector()
 			AddActorLocalRotation(FRotator(0, Private_Rotation_Z, 0));
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Angle: %f"), Private_Rotation_Z);
-
+	//UE_LOG(LogTemp, Warning, TEXT("Angle: %f"), Private_Rotation_Z);
 }
 
 float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
@@ -176,8 +188,107 @@ float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
 	return (a / (b * c));
 }
 
+void ANonPlayerActorBase::DetectPlayer(float deltatime)
+{
+	if (states == IDLE || states == AWAREOFPLAYER) {
+		//UE_LOG(LogTemp, Display, TEXT("Detecting player"));
+
+		FVector ThisActor = GetActorLocation();
+		//FVector PlayerLocation = player->GetActorLocation();
+		FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *player->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Player: %s"), *PlayerLocation.ToString());
+
+		FVector vec = PlayerLocation - ThisActor;
+
+		float DotProd = dotProduct2D(GetActorForwardVector(), vec);
+		float angle = acosf(DotProd) * (180 / PI);
+		float length = VectorMagnitude(vec);
+
+		if (angle < DetectionAngle / 2 && length < DetectionLength) {
+			TimeDetected += deltatime;
+			UE_LOG(LogTemp, Warning, TEXT("Time detected: %f"), TimeDetected);
+
+			if (TimeDetected > DetectionTimer) {
+				UE_LOG(LogTemp, Warning, TEXT("Player detected"));
+				UE_LOG(LogTemp, Warning, TEXT("%s is shocked"), *GetName());
+				states = SHOCK;
+				TimeDetected = 0;
+			}
+			//bPlayerDetection = true;
+		}
+		else {
+			//UE_LOG(LogTemp, Error, TEXT("Cant see player"));
+			TimeDetected = 0;
+			//bPlayerDetection = false;
+		}
+
+		//UE_LOG(LogTemp, Warning, TEXT("Length from Shroob to player: %f"), length);
+		//UE_LOG(LogTemp, Warning, TEXT("Angle from forward vec to player: %f"), angle);
+	}
+	if (states == HOSTILE) {
+		/* Hvis spilleren kommer seg langt nok unna og holder seg unna i noen sekunder
+		*	så går actor over til AWAREOFPLAYER */
+	}
+	if (states == AWAREOFPLAYER) {
+		/* Er spilleren lenge nok borte fra actor så går den tilbake til IDLE 
+		*	Hvis ikke så blir den hostile igjen */
+	}
+}
+
+void ANonPlayerActorBase::ActorState(float deltatime)
+{
+	switch (states) {
+	case IDLE:	// Idle
+		/* I IDLE så skal den bare bevege seg rundt på  platformen sin. Vil gjøre checks for å 
+		*	se om den kan legge merke til spilleren. */
+		break;
+	case SHOCK:	// Shocked
+		/* Skal gjøre en sjekk når den entrer SHOCK for å se om spilleren er der.
+		*	Etter at shock timeren har gått ut så gjør den en til sjekk,
+		*	hvis spilleren da fortsatt er der, så går den over til HOSTILE
+		*	Hvis ikke så går den til enten IDLE eller AWAREOFPLAYER */
+		break;
+	case HOSTILE:	// Hostile
+		/* Hvis spilleren kommer seg langt nok unna og holder seg unna i noen sekunder
+		*	så går actor over til AWAREOFPLAYER */
+		break;
+	case AWAREOFPLAYER:	// Aware of player
+		/* Er spilleren lenge nok borte fra actor så går den tilbake til IDLE
+		*	Kommer spilleren tilbake går den tilbake til HOSTILE */
+		break;
+	default:
+		break;
+	}
+}
+
 // What happens on this actor being destroyed
 void ANonPlayerActorBase::HandleDestruction()
 {
+}
+
+void ANonPlayerActorBase::onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == player){
+		//UE_LOG(LogTemp, Warning, TEXT("Player WITHIN sensingsphere"));
+		if (states != HOSTILE) {
+			UE_LOG(LogTemp, Display, TEXT("%s is Hostile"), *GetName());
+			states = HOSTILE;
+		}
+	}
+}
+
+void ANonPlayerActorBase::endOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
+{
+	if (OtherActor == player) {
+		//UE_LOG(LogTemp, Warning, TEXT("Player OUTSIDE sensingsphere"));
+	}
+}
+
+float ANonPlayerActorBase::VectorMagnitude(FVector vec)
+{
+	return sqrt(vec.X * vec.X + vec.Y * vec.Y + vec.Z * vec.Z);
 }
 

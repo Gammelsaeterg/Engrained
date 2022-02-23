@@ -6,6 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "NonPlayerActorBase.generated.h"
 
+#define IDLE 0
+#define SHOCK 1
+#define HOSTILE 2
+#define AWAREOFPLAYER 3
+
 UCLASS()
 class ENGRAINED_API ANonPlayerActorBase : public AActor
 {
@@ -19,6 +24,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	
+
+	/* States for actor 
+	* 0 = idle
+	* 1 = Shock
+	* 2 = Hostile
+	* 3 = Aware of player */
+	int states{ 0 };
+
 	/* Lagrer origo til movArea */
 	FVector MoveAreaVector;
 	FVector CurrentLocation;
@@ -34,7 +48,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Rotation_Z;
 	float Private_Rotation_Z;
-	int InitializeRotation{ 0 };	// Character only when this is at 0
+	//int InitializeRotation{ 0 };	// Character only when this is at 0
 	float dotProduct_Right;//Helper variable for rotation
 
 	/* Raytracer variables */
@@ -52,7 +66,29 @@ protected:
 	bool bDebugLine{ false };
 
 	bool bRotateBack{ false };
-	
+
+	/* Player detection */
+	/* For debuging. Whether the actor has player detection enabled */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	bool bDebugPlayerDetection{ false };
+	bool bDetectPlayer{ false };
+	/* Total angle of detection */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float DetectionAngle{ 100.f };
+	/* Length of actor player detection */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float DetectionLength{ 500.f };
+	/* Time it takes for actor to detect player */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float DetectionTimer{ 0.5f };
+	float TimeDetected{ 0 };
+	bool bHostile{ false };
+	bool bAwareofPlayer{ false };
+	float fAwareTimer{ 0.f };
+	/* When actor detects player while IDLE it will be shocked for x-time */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float ShockTimer{ 1.f };
+	float TimeShocked{ 0 };
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,9 +97,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* BoxCollider;
 	UPROPERTY(VisibleAnywhere)
-	class USphereComponent* ShroobSensingSphere{ nullptr };
+	class USphereComponent* SensingSphere{ nullptr };
 	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* ShroobVisibleMesh;
+	USkeletalMeshComponent* VisibleMesh;
 
 	UPROPERTY(Editanywhere, Category = "Navigation")
 	class AEnemySpawner* movArea{ nullptr };
@@ -79,7 +115,24 @@ protected:
 	float dotProduct2D(FVector vec1, FVector vec2);
 
 
+	void DetectPlayer(float deltatime);
 
+	/* State machine for actor */
+	virtual void ActorState(float deltatime);
 
 	virtual void HandleDestruction();
+
+	UFUNCTION()
+	void onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, 
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void endOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+			int32 OtherBodyIndex);
+
+private:
+	UPROPERTY(EditAnywhere)
+	class AMina* mina;
+	AActor* player;
+
+	float VectorMagnitude(FVector vec);
 };
