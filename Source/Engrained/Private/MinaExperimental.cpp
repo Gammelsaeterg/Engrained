@@ -39,11 +39,24 @@ void AMinaExperimental::AddYawInput(float Val)
 
 void AMinaExperimental::AddPitchInput(float Val)
 {
+	//if ((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) > 90.f)
+	//{
+	//	PlayerCameraRotation.Pitch = 90.f;
+	//}
+	//else if ((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) < -90.f)
+	//{
+	//	PlayerCameraRotation.Pitch = -90.f;
+	//}
+	//else if ((!((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) > 90.f) &&
+	//	      !((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) < -90.f)))
+	//{
+	//	PlayerCameraRotation.Pitch -= Val * 45.f * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, pitch scale
+	//}
+
 	if ((!((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) > 90.f) &&
-		 !((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) < -90.f)))
+		!((PlayerCameraRotation.Pitch - Val * 45.f * GetWorld()->GetDeltaSeconds()) < -90.f)))
 	{
 		PlayerCameraRotation.Pitch -= Val * 45.f * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, pitch scale
 	}
-
 }
 
