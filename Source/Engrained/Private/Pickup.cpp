@@ -53,7 +53,7 @@ void APickup::Tick(float DeltaTime)
 void APickup::OnPlayerEnterPickupBox(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	UE_LOG(LogTemp, Warning, TEXT("Object Picked up"))
+	//UE_LOG(LogTemp, Warning, TEXT("Object Picked up"))
 	if (Ammo == true && OtherActor->IsA(AMina::StaticClass()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ammo refilled"))
