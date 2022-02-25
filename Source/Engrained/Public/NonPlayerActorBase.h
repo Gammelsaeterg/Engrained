@@ -10,6 +10,12 @@
 #define SHOCK 1
 #define HOSTILE 2
 #define AWAREOFPLAYER 3
+#define DEATH 10
+
+#define colorIDLE FColor{0, 255, 0}
+#define colorSHOCK FColor{255, 255, 0}
+#define colorHOSTILE FColor{255, 0, 0}
+#define colorAWAREOFPLAYER FColor{0, 0, 255}
 
 UCLASS()
 class ENGRAINED_API ANonPlayerActorBase : public AActor
@@ -31,11 +37,15 @@ protected:
 	* 1 = Shock
 	* 2 = Hostile
 	* 3 = Aware of player */
-	int states{ 0 };
+	int States{ 0 };
+	FColor StateColor;
+	void ShowStateColor();	// DEBUG
 
 	/* Lagrer origo til movArea */
 	FVector MoveAreaVector;
 	FVector CurrentLocation;
+
+	FVector PlayerLocation{};
 
 	/* Testing field of vision */
 	FVector Line;
@@ -82,13 +92,24 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
 	float DetectionTimer{ 0.5f };
 	float TimeDetected{ 0 };
-	bool bHostile{ false };
-	bool bAwareofPlayer{ false };
-	float fAwareTimer{ 0.f };
+
+	//bool bHostile{ false };
+	//bool bAwareofPlayer{ false };
+
 	/* When actor detects player while IDLE it will be shocked for x-time */
 	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
 	float ShockTimer{ 1.f };
 	float TimeShocked{ 0 };
+
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float HostileReach{ 600.f };
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float HostileTimer{ 2.f };
+	float TimeHostile{ 0 };
+	
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float AwareTimer{ 3.f };
+	float TimeAware{ 0.f };
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -105,6 +126,7 @@ protected:
 	class AEnemySpawner* movArea{ nullptr };
 	AActor* movAreaActor{ nullptr };
 
+	void DrawDebugLineBetweenActors(FVector OtherActor, FColor color);
 	/* Raytracer in z axis, collides only with 'EnemyAreaObj' Object type */
 	FHitResult RayTracer(float range);
 	/* Checks if RayTracer hit the specified enemy movement area */
@@ -116,9 +138,15 @@ protected:
 
 
 	void DetectPlayer(float deltatime);
+	bool OtherActorWithinReach(FVector OtherActor, float reach);
 
 	/* State machine for actor */
 	virtual void ActorState(float deltatime);
+	/* Base functions for the various States of the actor */
+	virtual void ActorIDLE(float deltatime);
+	virtual void ActorSHOCK(float deltatime);
+	virtual void ActorHOSTILE(float deltatime);
+	virtual void ActorAWAREOFPLAYER(float deltatime);
 
 	virtual void HandleDestruction();
 

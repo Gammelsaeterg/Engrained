@@ -27,6 +27,11 @@ protected:
 
 	void ActorState(float deltatime) override;
 
+	void ActorIDLE(float deltatime) override;
+	void ActorSHOCK(float deltatime) override;
+	void ActorHOSTILE(float deltatime) override;
+	void ActorAWAREOFPLAYER(float deltatime) override;
+
 
 public:    
 	// Called every frame

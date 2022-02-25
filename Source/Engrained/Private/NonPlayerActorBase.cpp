@@ -1,3 +1,7 @@
+#include "..\Public\NonPlayerActorBase.h"
+#include "..\Public\NonPlayerActorBase.h"
+#include "..\Public\NonPlayerActorBase.h"
+#include "..\Public\NonPlayerActorBase.h"
 // The game and source code belongs to Team 7 Programming team
 
 
@@ -86,20 +90,40 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 	//	1.f
 	//);
 
+	PlayerLocation = player->GetActorLocation();
+	//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
 
-	// Test for punkt
+	ShowStateColor();
+}
+
+void ANonPlayerActorBase::ShowStateColor()
+{
+	/* Punkt over actor som skal vise hvilken state den er i */
 	DrawDebugLine(
 		GetWorld(),
 		GetActorLocation() + FVector(0, 0, 100),
 		GetActorLocation() + FVector(0, 0, 100),
-		FColor(0, 0, 255),
+		StateColor,
 		false,
 		0,
+		0,
+		25.f
+	);
+}
+
+void ANonPlayerActorBase::DrawDebugLineBetweenActors(FVector OtherActor, FColor color)
+{
+	DrawDebugLine(
+		GetWorld(),
+		GetActorLocation(),
+		OtherActor,
+		color,
+		false,
+		0.f,
 		0,
 		1.f
 	);
 }
-
 
 FHitResult ANonPlayerActorBase::RayTracer(float range)
 {
@@ -190,30 +214,28 @@ float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
 
 void ANonPlayerActorBase::DetectPlayer(float deltatime)
 {
-	if (states == IDLE || states == AWAREOFPLAYER) {
-		//UE_LOG(LogTemp, Display, TEXT("Detecting player"));
+	if (States == IDLE || States == AWAREOFPLAYER) {
 
 		FVector ThisActor = GetActorLocation();
-		//FVector PlayerLocation = player->GetActorLocation();
-		FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
-
-		//UE_LOG(LogTemp, Warning, TEXT("%s"), *player->GetName());
-		//UE_LOG(LogTemp, Warning, TEXT("Player: %s"), *PlayerLocation.ToString());
+		//FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
 		FVector vec = PlayerLocation - ThisActor;
 
 		float DotProd = dotProduct2D(GetActorForwardVector(), vec);
 		float angle = acosf(DotProd) * (180 / PI);
-		float length = VectorMagnitude(vec);
+		//float length = VectorMagnitude(vec);
 
-		if (angle < DetectionAngle / 2 && length < DetectionLength) {
+
+		if (angle < DetectionAngle / 2 && OtherActorWithinReach(PlayerLocation, DetectionLength)) {
 			TimeDetected += deltatime;
 			UE_LOG(LogTemp, Warning, TEXT("Time detected: %f"), TimeDetected);
+
+			DrawDebugLineBetweenActors(PlayerLocation, StateColor);
 
 			if (TimeDetected > DetectionTimer) {
 				UE_LOG(LogTemp, Warning, TEXT("Player detected"));
 				UE_LOG(LogTemp, Warning, TEXT("%s is shocked"), *GetName());
-				states = SHOCK;
+				States = SHOCK;
 				TimeDetected = 0;
 			}
 			//bPlayerDetection = true;
@@ -227,19 +249,27 @@ void ANonPlayerActorBase::DetectPlayer(float deltatime)
 		//UE_LOG(LogTemp, Warning, TEXT("Length from Shroob to player: %f"), length);
 		//UE_LOG(LogTemp, Warning, TEXT("Angle from forward vec to player: %f"), angle);
 	}
-	if (states == HOSTILE) {
+	if (States == HOSTILE) {
 		/* Hvis spilleren kommer seg langt nok unna og holder seg unna i noen sekunder
 		*	så går actor over til AWAREOFPLAYER */
 	}
-	if (states == AWAREOFPLAYER) {
+	if (States == AWAREOFPLAYER) {
 		/* Er spilleren lenge nok borte fra actor så går den tilbake til IDLE 
 		*	Hvis ikke så blir den hostile igjen */
 	}
 }
 
+bool ANonPlayerActorBase::OtherActorWithinReach(FVector OtherActor, float reach)
+{
+	FVector Self = GetActorLocation();
+	FVector vec = OtherActor - Self;
+	float length = VectorMagnitude(vec);
+	return length < reach;
+}
+
 void ANonPlayerActorBase::ActorState(float deltatime)
 {
-	switch (states) {
+	switch (States) {
 	case IDLE:	// Idle
 		/* I IDLE så skal den bare bevege seg rundt på  platformen sin. Vil gjøre checks for å 
 		*	se om den kan legge merke til spilleren. */
@@ -263,6 +293,22 @@ void ANonPlayerActorBase::ActorState(float deltatime)
 	}
 }
 
+void ANonPlayerActorBase::ActorIDLE(float deltatime)
+{
+}
+
+void ANonPlayerActorBase::ActorSHOCK(float deltatime)
+{
+}
+
+void ANonPlayerActorBase::ActorHOSTILE(float deltatime)
+{
+}
+
+void ANonPlayerActorBase::ActorAWAREOFPLAYER(float deltatime)
+{
+}
+
 // What happens on this actor being destroyed
 void ANonPlayerActorBase::HandleDestruction()
 {
@@ -273,9 +319,12 @@ void ANonPlayerActorBase::onOverlap(UPrimitiveComponent* OverlappedComponent, AA
 {
 	if (OtherActor == player){
 		//UE_LOG(LogTemp, Warning, TEXT("Player WITHIN sensingsphere"));
-		if (states != HOSTILE) {
-			UE_LOG(LogTemp, Display, TEXT("%s is Hostile"), *GetName());
-			states = HOSTILE;
+		if (States == IDLE) {
+			UE_LOG(LogTemp, Display, TEXT("%s is Shocked"), *GetName());
+			States = SHOCK;
+		}
+		if (States == AWAREOFPLAYER) {
+			States = HOSTILE;
 		}
 	}
 }

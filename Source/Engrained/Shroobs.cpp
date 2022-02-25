@@ -32,46 +32,42 @@ void AShroobs::BeginPlay()
 
 void AShroobs::ActorState(float deltatime)
 {
-	switch (states) {
-	case IDLE:	// Idle
+	switch (States) {
+	case IDLE:			// Idle
+		StateColor = colorIDLE;
+		ActorIDLE(deltatime);
 		break;
-	case SHOCK:	// Shocked
-		/* Skal gjøre en sjekk når den entrer SHOCK for å se om spilleren er der. 
-		*	Etter at shock timeren har gått ut så gjør den en til sjekk, 
-		*	hvis spilleren da fortsatt er der, så går den over til HOSTILE
-		*	Hvis ikke så går den til enten IDLE eller AWAREOFPLAYER */
-		UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
-		TimeShocked += deltatime;
-		if (TimeShocked > ShockTimer) {
-			UE_LOG(LogTemp, Display, TEXT("%s is Hostile!"), *GetName());
-			states = HOSTILE;
-		}
+	case SHOCK:			// Shocked
+		StateColor = colorSHOCK;
+		ActorSHOCK(deltatime);
 		break;
-	case HOSTILE:	// Hostile
+	case HOSTILE:		// Hostile
+		StateColor = colorHOSTILE;
+		ActorHOSTILE(deltatime);
 		break;
 	case AWAREOFPLAYER:	// Aware of player
+		StateColor = colorAWAREOFPLAYER;
+		ActorAWAREOFPLAYER(deltatime);
+		break;
+	case DEATH:			// Death
+		UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
 		break;
 	default:
 		break;
 	}
 }
 
-// Called every frame
-void AShroobs::Tick(float DeltaTime)
+void AShroobs::ActorIDLE(float deltatime)
 {
-	Super::Tick(DeltaTime);
-
-	//Seconds += DeltaTime;
-	
 	CurrentLocation = GetActorLocation();
-	CurrentLocation += GetActorForwardVector() * Speed * DeltaTime;
+	CurrentLocation += GetActorForwardVector() * Speed * deltatime;
 	SetActorLocation(CurrentLocation);
-	
-	ActorState(DeltaTime);
+
+
 
 	//UE_LOG(LogTemp, Display, TEXT("Rotate: %s"), (bRotateBack ? TEXT("true") : TEXT("false")));
 	/* Movement across platform */
-	RayTraceSeconds += DeltaTime;
+	RayTraceSeconds += deltatime;
 	if (RayTraceSeconds > RayTraceTiming) {
 		if (RayTraceActive) {
 			MoveAreaCheck(RayTraceLength);
@@ -97,15 +93,78 @@ void AShroobs::Tick(float DeltaTime)
 	}
 
 	if (bDebugPlayerDetection)
-		DetectPlayer(DeltaTime);
+		DetectPlayer(deltatime);
+}
 
-	if (bDetectPlayer) {
-		if (TimeDetected > DetectionTimer) {
-		}
+void AShroobs::ActorSHOCK(float deltatime)
+{
+	UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
+	TimeShocked += deltatime;
+	if (TimeShocked > ShockTimer) {
+		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		TimeShocked = 0;
+		States = HOSTILE;
+	}
+}
+
+void AShroobs::ActorHOSTILE(float deltatime)
+{
+	/* If player is not within reach
+		Run timer
+		if timer exceeds x. Go to state AWAREOFPLAYER */
+
+	if (OtherActorWithinReach(PlayerLocation, HostileReach)) {
+		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
+		TimeHostile = 0;
 	}
 	else {
-		//TimeDetected = 0;
+		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		TimeHostile += deltatime;
 	}
+	if (TimeHostile > HostileTimer) {
+		UE_LOG(LogTemp, Display, TEXT("Player left %s's reach"), *GetName());
+		UE_LOG(LogTemp, Display, TEXT("%s is now AWARE OF PLAYER"), *GetName());
+		States = AWAREOFPLAYER;
+		TimeAware = 0;
+	}
+}
+
+void AShroobs::ActorAWAREOFPLAYER(float deltatime)
+{
+	if (!OtherActorWithinReach(PlayerLocation, HostileReach)) {
+		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
+		UE_LOG(LogTemp, Display, TEXT("TimeAware %f"), TimeAware);
+		TimeAware += deltatime;
+		TimeHostile = 0;
+	}
+	else {
+		DrawDebugLineBetweenActors(PlayerLocation, colorHOSTILE);
+		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		TimeHostile += deltatime;
+		TimeAware = 0;
+	}
+	if (TimeHostile > HostileTimer/2) {
+		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		States = HOSTILE;
+		TimeAware = 0;
+	}
+	if (TimeAware > AwareTimer) {
+		UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
+		States = IDLE;
+		TimeHostile = 0;
+	}
+}
+
+// Called every frame
+void AShroobs::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//Seconds += DeltaTime;
+	
+	ActorState(DeltaTime);
+
+
 }
 
 void AShroobs::ImHit()
