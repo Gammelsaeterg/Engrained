@@ -103,6 +103,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float forwardSpeed{ 50.f };
+
+	float rotator_Z;
+
 	//TSubclassOf<BoxShape> ActorToSpawn;
 
 
