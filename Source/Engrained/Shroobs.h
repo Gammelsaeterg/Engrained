@@ -71,6 +71,11 @@ protected:
 
 	bool test = false;
 	
+	/* Activate debug */
+	UPROPERTY(EditAnywhere, Category = "Debug", meta = (AllowPrivateAccess = "true"))
+	bool bDebugLine{ false };
+
+
 	void RandRotation();
 
 	//void SpawnVolume();

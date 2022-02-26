@@ -19,7 +19,7 @@ public:
 	AMina();
 
 	//Components for Mina
-	UPROPERTY(EditAnywhere, Category = "SpringArm")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpringArm")
 	class USpringArmComponent* SpringArmComp;
 
 	UPROPERTY(EditAnywhere, Category = "CameraComp")
@@ -67,6 +67,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/* Raytracer mellom kamera og Mina */
+	FHitResult RayTracer();
+	/* Hvis RayTracer treffer en actor */
+	void RayTraceHit();
 
 
 public:
