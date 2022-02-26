@@ -78,6 +78,42 @@ void AMina::BeginPlay()
 	CrystalAmmo = 5;
 }
 
+FHitResult AMina::RayTracer()
+{
+	FHitResult Hit;
+	FCollisionQueryParams TraceParams(FName(TEXT("")), false, this);
+
+	/*GetWorld()->LineTraceSingleByObjectType(
+		Hit,
+		this->GetActorLocation(),
+		CameraComp->GetComponentLocation(),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_GameTraceChannel1),
+		TraceParams
+	);*/	
+	GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		this->GetActorLocation(),
+		CameraComp->GetComponentLocation(),
+		ECollisionChannel(ECollisionChannel::ECC_GameTraceChannel1),
+		TraceParams
+	);
+	return Hit;
+}
+
+void AMina::RayTraceHit()
+{
+	FHitResult HitResult = RayTracer();
+
+	AActor* ActorHit = HitResult.GetActor();
+	if (ActorHit){
+		UE_LOG(LogTemp, Warning, TEXT("%s between player and camera"), *ActorHit->GetName());
+		ActorHit->SetActorHiddenInGame(true);
+	}
+	else {
+		//ActorHit->SetActorHiddenInGame(false);
+	}
+}
+
 
 
 // Called every frame
@@ -92,6 +128,7 @@ void AMina::Tick(float DeltaTime)
 
 	MinaCurrentLocation = GetActorLocation();
 	
+	RayTraceHit();
 }
 
 // Called to bind functionality to input
