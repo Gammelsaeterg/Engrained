@@ -106,7 +106,7 @@ void AMina::RayTraceHit()
 
 	AActor* ActorHit = HitResult.GetActor();
 	if (ActorHit){
-		UE_LOG(LogTemp, Warning, TEXT("%s between player and camera"), *ActorHit->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("%s between player and camera"), *ActorHit->GetName());
 		ActorHit->SetActorHiddenInGame(true);
 	}
 	else {
