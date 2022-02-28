@@ -80,7 +80,7 @@ void AShroobs::ActorIDLE(float deltatime)
 					this->GetActorLocation() - FVector(0, 0, RayTraceLength),
 					FColor(255, 0, 0),
 					false,
-					2.f,
+					.2f,
 					0,
 					1.f
 				);
@@ -126,6 +126,8 @@ void AShroobs::ActorHOSTILE(float deltatime)
 		Run timer
 		if timer exceeds x. Go to state AWAREOFPLAYER */
 
+	RotateToVector(PlayerLocation, Rotation_Z);
+
 	if (OtherActorWithinReach(PlayerLocation, HostileReach)) {
 		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
 		TimeHostile = 0;
@@ -144,6 +146,39 @@ void AShroobs::ActorHOSTILE(float deltatime)
 
 void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 {
+	TimeAwareMovement += deltatime;
+
+	RotateToVector(PlayerLocation, Rotation_Z);
+
+	if (TimeAwareMovement > AwareMovementTimer) {
+		// Velg en lokasjon i forhold til høyre aksen
+		CurrentLocation = GetActorLocation();
+
+		//float DotProdRight = dotProduct2D(GetActorRightVector(), MoveAreaVector);
+
+		//if (DotProdRight >= 0) {
+		//	Length = GetActorRightVector();
+		//}
+		//else if (DotProdRight < 0) {
+		//	Length = -GetActorRightVector();
+		//}
+		//		
+
+		MoveToVector = MoveAreaVector + FVector(FMath::RandRange(
+			-RotationPointRandomRange, RotationPointRandomRange),
+			FMath::RandRange(-RotationPointRandomRange, RotationPointRandomRange), 0);
+
+		Length = Length * -1;
+		UE_LOG(LogTemp, Error, TEXT("Length: %f"), Length);
+
+		TimeAwareMovement = 0;
+		UE_LOG(LogTemp, Warning, TEXT("AwareMovement"));
+	}
+	// Add local offset
+	AddActorLocalOffset(GetActorRightVector() * (Length * AwareMovementSpeed));
+
+	
+
 	if (!OtherActorWithinReach(PlayerLocation, HostileReach)) {
 		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
 		UE_LOG(LogTemp, Display, TEXT("TimeAware %f"), TimeAware);
