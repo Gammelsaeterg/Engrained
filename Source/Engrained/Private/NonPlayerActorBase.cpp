@@ -232,7 +232,7 @@ void ANonPlayerActorBase::DetectPlayer(float deltatime)
 
 		if (angle < DetectionAngle / 2 && OtherActorWithinReach(PlayerLocation, DetectionLength)) {
 			TimeDetected += deltatime;
-			UE_LOG(LogTemp, Warning, TEXT("Time detected: %f"), TimeDetected);
+			//UE_LOG(LogTemp, Warning, TEXT("Time detected: %f"), TimeDetected);
 
 			DrawDebugLineBetweenActors(PlayerLocation, StateColor);
 
@@ -347,5 +347,10 @@ void ANonPlayerActorBase::boxEndOverlap(UPrimitiveComponent* OverlappedComponent
 float ANonPlayerActorBase::VectorMagnitude(FVector vec)
 {
 	return sqrt(vec.X * vec.X + vec.Y * vec.Y + vec.Z * vec.Z);
+}
+
+AActor* ANonPlayerActorBase::GetTargetActor()
+{
+	return player;
 }
 
