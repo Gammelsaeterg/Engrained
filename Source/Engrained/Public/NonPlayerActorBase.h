@@ -42,9 +42,14 @@ protected:
 	FColor StateColor;
 	void ShowStateColor();	// DEBUG
 
-	/* Lagrer origo til movArea */
 	FVector MoveAreaVector;
 	FVector CurrentLocation;
+	//FVector Length;
+	float Length{ 1.f };
+
+	/* Using FVector as movement target */
+	FVector MoveToVector;
+
 
 	FVector PlayerLocation{};
 
@@ -108,9 +113,20 @@ protected:
 	float HostileTimer{ 2.f };
 	float TimeHostile{ 0 };
 	
+	/* How long the actor will stay in the AWAREOFPLAYER state before going back to IDLE */
 	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
 	float AwareTimer{ 3.f };
 	float TimeAware{ 0.f };
+	/* How often the actor will move when in the AWAREOFPLAYER state */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float AwareMovementTimer{ 2.f };
+	float TimeAwareMovement = AwareMovementTimer / 2;
+	//UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	//float AwareRandomMovementLength{ 100.f };
+	/* Actors Right Vector * AwareMovementSpeed */
+	UPROPERTY(EditAnywhere, Category = "Player detection and hostility", meta = (AllowPrivateAccess = "true"))
+	float AwareMovementSpeed{ 2.f };
+
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -123,9 +139,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* VisibleMesh;
 
-	UPROPERTY(Editanywhere, Category = "Navigation")
+	UPROPERTY(Editanywhere)
 	class AEnemySpawner* movArea{ nullptr };
-	AActor* movAreaActor{ nullptr };
+	AActor* movAreaActor{ nullptr };	
+
 
 	void DrawDebugLineBetweenActors(FVector OtherActor, FColor color);
 	/* Raytracer in z axis, collides only with 'EnemyAreaObj' Object type */
@@ -160,8 +177,12 @@ protected:
 			int32 OtherBodyIndex);
 
 private:
-	UPROPERTY(EditAnywhere)
-	class AMina* mina;
+	//UPROPERTY(Editanywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	//class AEnemySpawner* movArea{ nullptr };
+	//AActor* movAreaActor{ nullptr };
+
+	//UPROPERTY(EditAnywhere)
+	//class AMina* mina;
 	AActor* player;
 
 	float VectorMagnitude(FVector vec);

@@ -142,14 +142,14 @@ void ANonPlayerActorBase::MoveAreaCheck(float range)
 void ANonPlayerActorBase::RotateToVector()
 {
 	/* Randomizes MoveAreaVector to give some variation */
-	FVector MoveToVector = MoveAreaVector + FVector(FMath::RandRange(
+	FVector MoveToVector2 = MoveAreaVector + FVector(FMath::RandRange(
 		-RotationPointRandomRange, RotationPointRandomRange),
 		FMath::RandRange(-RotationPointRandomRange, RotationPointRandomRange), 0);
 
 	FVector Forward = GetActorForwardVector();
 	FVector Right = GetActorRightVector();
 	FVector Current = GetActorLocation();
-	FVector Turn = MoveToVector - Current;
+	FVector Turn = MoveToVector2 - Current;
 
 	float dotProduct_Forward = dotProduct2D(Forward, Turn);
 	dotProduct_Right = dotProduct2D(Right, Turn);
@@ -194,8 +194,8 @@ void ANonPlayerActorBase::RotateToVector(FVector TowardsVector, float Rotation)
 			Private_Rotation_Z = -Private_Rotation_Z;
 			AddActorLocalRotation(FRotator(0, Private_Rotation_Z, 0));
 		}
-		UE_LOG(LogTemp, Warning, TEXT("STRENGTH: %f"), rotationStrength);
-		UE_LOG(LogTemp, Warning, TEXT("angle: %f"), Private_Rotation_Z);
+		//UE_LOG(LogTemp, Warning, TEXT("STRENGTH: %f"), rotationStrength);
+		//UE_LOG(LogTemp, Warning, TEXT("angle: %f"), Private_Rotation_Z);
 	}
 }
 
