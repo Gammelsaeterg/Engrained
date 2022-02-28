@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
 #include "NonPlayerActorBase.generated.h"
 
 #define IDLE 0
@@ -18,7 +19,7 @@
 #define colorAWAREOFPLAYER FColor{0, 0, 255}
 
 UCLASS()
-class ENGRAINED_API ANonPlayerActorBase : public AActor
+class ENGRAINED_API ANonPlayerActorBase : public APawn
 {
 	GENERATED_BODY()
 	
