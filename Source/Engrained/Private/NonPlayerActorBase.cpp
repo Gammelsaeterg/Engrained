@@ -46,8 +46,10 @@ void ANonPlayerActorBase::BeginPlay()
 
 	player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
-	SensingSphere->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::onOverlap);
-	SensingSphere->OnComponentEndOverlap.AddDynamic(this, &ANonPlayerActorBase::endOverlap);
+	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::)
+
+	SensingSphere->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::sphereOnOverlap);
+	SensingSphere->OnComponentEndOverlap.AddDynamic(this, &ANonPlayerActorBase::sphereEndOverlap);
 	
 
 	/* Finds area actor to move across */
@@ -312,7 +314,7 @@ void ANonPlayerActorBase::HandleDestruction()
 {
 }
 
-void ANonPlayerActorBase::onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ANonPlayerActorBase::sphereOnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == player){
@@ -327,11 +329,19 @@ void ANonPlayerActorBase::onOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
-void ANonPlayerActorBase::endOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
+void ANonPlayerActorBase::sphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
 {
 	if (OtherActor == player) {
 		//UE_LOG(LogTemp, Warning, TEXT("Player OUTSIDE sensingsphere"));
 	}
+}
+
+void ANonPlayerActorBase::boxOnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
+void ANonPlayerActorBase::boxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
+{
 }
 
 float ANonPlayerActorBase::VectorMagnitude(FVector vec)
