@@ -111,10 +111,10 @@ void AShroobs::ActorSHOCK(float deltatime)
 {
 	RotateToVector(PlayerLocation, Rotation_Z);
 
-	UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
+	//UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
 	TimeShocked += deltatime;
 	if (TimeShocked > ShockTimer) {
-		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
 		TimeShocked = 0;
 		States = HOSTILE;
 	}
@@ -133,13 +133,14 @@ void AShroobs::ActorHOSTILE(float deltatime)
 		TimeHostile = 0;
 	}
 	else {
-		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		//UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
 		TimeHostile += deltatime;
 	}
 	if (TimeHostile > HostileTimer) {
-		UE_LOG(LogTemp, Display, TEXT("Player left %s's reach"), *GetName());
-		UE_LOG(LogTemp, Display, TEXT("%s is now AWARE OF PLAYER"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("Player left %s's reach"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("%s is now AWARE OF PLAYER"), *GetName());
 		States = AWAREOFPLAYER;
+		TimeHostile = 0;
 		TimeAware = 0;
 	}
 }
@@ -151,28 +152,13 @@ void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 	RotateToVector(PlayerLocation, Rotation_Z);
 
 	if (TimeAwareMovement > AwareMovementTimer) {
-		// Velg en lokasjon i forhold til høyre aksen
-		CurrentLocation = GetActorLocation();
-
-		//float DotProdRight = dotProduct2D(GetActorRightVector(), MoveAreaVector);
-
-		//if (DotProdRight >= 0) {
-		//	Length = GetActorRightVector();
-		//}
-		//else if (DotProdRight < 0) {
-		//	Length = -GetActorRightVector();
-		//}
-		//		
-
-		MoveToVector = MoveAreaVector + FVector(FMath::RandRange(
-			-RotationPointRandomRange, RotationPointRandomRange),
-			FMath::RandRange(-RotationPointRandomRange, RotationPointRandomRange), 0);
-
+		/* For øyeblikket er det en super simple fram og tilbake 
+			i forhold til Actor Right Vector */
 		Length = Length * -1;
-		UE_LOG(LogTemp, Error, TEXT("Length: %f"), Length);
+		//UE_LOG(LogTemp, Error, TEXT("Length: %f"), Length);
 
 		TimeAwareMovement = 0;
-		UE_LOG(LogTemp, Warning, TEXT("AwareMovement"));
+		UE_LOG(LogTemp, Warning, TEXT("AWARE: changing direction"));
 	}
 	// Add local offset
 	AddActorLocalOffset(GetActorRightVector() * (Length * AwareMovementSpeed));
@@ -181,23 +167,25 @@ void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 
 	if (!OtherActorWithinReach(PlayerLocation, HostileReach)) {
 		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
-		UE_LOG(LogTemp, Display, TEXT("TimeAware %f"), TimeAware);
+		//UE_LOG(LogTemp, Display, TEXT("TimeAware %f"), TimeAware);
 		TimeAware += deltatime;
-		TimeHostile = 0;
+		if (TimeHostile > 0)
+			TimeHostile -= deltatime;
 	}
 	else {
 		DrawDebugLineBetweenActors(PlayerLocation, colorHOSTILE);
-		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		//UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
 		TimeHostile += deltatime;
-		TimeAware = 0;
+		if (TimeAware > 0)
+			TimeAware -= deltatime;
 	}
 	if (TimeHostile > HostileTimer/2) {
-		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
 		States = HOSTILE;
 		TimeAware = 0;
 	}
 	if (TimeAware > AwareTimer) {
-		UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
 		States = IDLE;
 		TimeHostile = 0;
 	}
@@ -211,6 +199,8 @@ void AShroobs::Tick(float DeltaTime)
 	//Seconds += DeltaTime;
 	
 	ActorState(DeltaTime);
+
+
 }
 
 void AShroobs::ImHit()
