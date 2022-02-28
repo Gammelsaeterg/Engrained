@@ -358,8 +358,9 @@ AActor* AMina::FindClosestSpawn()
 void AMina::RespawnPlayer()
 {
 	AActor* Respawnpoint = FindClosestSpawn();
-	if (Respawnpoint)
+	if (Respawnpoint) {
 		SetActorLocation(Respawnpoint->GetActorLocation() + FVector(0, 0, 200));
+	}
 }
 
 float AMina::LengthBetweenVectors(FVector vec1, FVector vec2)
