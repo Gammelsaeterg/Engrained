@@ -36,18 +36,22 @@ void AShroobs::ActorState(float deltatime)
 	case IDLE:			// Idle
 		StateColor = colorIDLE;
 		ActorIDLE(deltatime);
+		EventHostile(false);
 		break;
 	case SHOCK:			// Shocked
 		StateColor = colorSHOCK;
 		ActorSHOCK(deltatime);
+		EventHostile(false);
 		break;
 	case HOSTILE:		// Hostile
 		StateColor = colorHOSTILE;
 		ActorHOSTILE(deltatime);
+		EventHostile(true);
 		break;
 	case AWAREOFPLAYER:	// Aware of player
 		StateColor = colorAWAREOFPLAYER;
 		ActorAWAREOFPLAYER(deltatime);
+		EventHostile(false);
 		break;
 	case DEATH:			// Death
 		UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
@@ -142,6 +146,7 @@ void AShroobs::ActorHOSTILE(float deltatime)
 		States = AWAREOFPLAYER;
 		TimeHostile = 0;
 		TimeAware = 0;
+		EventHostile(false);
 	}
 }
 
@@ -176,6 +181,7 @@ void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 		DrawDebugLineBetweenActors(PlayerLocation, colorHOSTILE);
 		//UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
 		TimeHostile += deltatime;
+		
 		if (TimeAware > 0)
 			TimeAware -= deltatime;
 	}
@@ -183,6 +189,7 @@ void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 		//UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
 		States = HOSTILE;
 		TimeAware = 0;
+		EventHostile(true);
 	}
 	if (TimeAware > AwareTimer) {
 		//UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
