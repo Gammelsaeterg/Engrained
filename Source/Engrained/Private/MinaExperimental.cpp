@@ -16,6 +16,8 @@ AMinaExperimental::AMinaExperimental()
 void AMinaExperimental::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SpawnPoints.Empty();
 }
 
 // Called every frame
@@ -60,3 +62,60 @@ void AMinaExperimental::AddPitchInput(float Val)
 	}
 }
 
+void AMinaExperimental::InsertSpawnPoint(AActor* Spawn)
+{
+	for (auto it : SpawnPoints) {
+		if (it == Spawn) {
+			//UE_LOG(LogTemp, Warning, TEXT("SpawnPoint: %s : has already been pushed"), *Spawn->GetName());
+			return;
+		}
+	}
+	SpawnPoints.Push(Spawn);
+	//UE_LOG(LogTemp, Warning, TEXT("Pushed Spawn: %s"), *Spawn->GetName());
+}
+
+AActor* AMinaExperimental::FindClosestSpawn()
+{
+	AActor* ReturnActor = nullptr;
+	float Length{ 1000000 }, prev{}, tmp{};
+	FVector MinaLocation = GetActorLocation();
+
+	for (auto it : SpawnPoints) {
+		//UE_LOG(LogTemp, Display, TEXT("iterator:: %s"), *it->GetName());
+
+		FVector SpawnLocation = it->GetActorLocation();
+		tmp = LengthBetweenVectors(MinaLocation, SpawnLocation);
+		//UE_LOG(LogTemp, Display, TEXT("Length between %s and Mina is %f"), *it->GetName(), tmp);
+
+		if (tmp < Length) {
+			Length = tmp;
+			ReturnActor = it;
+		}
+	}
+
+	//if (ReturnActor) {
+	//	UE_LOG(LogTemp, Warning, TEXT("Found: %s : as respawnpoint"), *ReturnActor->GetName());
+	//}
+	//else
+	//	UE_LOG(LogTemp, Error, TEXT("No respawn point found"));
+
+	return ReturnActor;
+}
+
+void AMinaExperimental::RespawnPlayer()
+{
+	AActor* Respawnpoint = FindClosestSpawn();
+	if (Respawnpoint)
+		SetActorLocation(Respawnpoint->GetActorLocation() + FVector(0, 0, 200));
+}
+
+void AMinaExperimental::SetInitialSpawn()
+{
+	//Respawnpoint = this->GetActorLocation();
+}
+
+float AMinaExperimental::LengthBetweenVectors(FVector vec1, FVector vec2)
+{
+	FVector v = vec1 - vec2;
+	return sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+}
