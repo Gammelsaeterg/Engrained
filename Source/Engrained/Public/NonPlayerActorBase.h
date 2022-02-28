@@ -163,4 +163,8 @@ private:
 	AActor* player;
 
 	float VectorMagnitude(FVector vec);
+
+public:
+	UFUNCTION(BlueprintCallable)
+	AActor* GetTargetActor();
 };
