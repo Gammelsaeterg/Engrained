@@ -59,7 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Rotation_Z;
 	float Private_Rotation_Z;
-	//int InitializeRotation{ 0 };	// Character only when this is at 0
+	int FindRandomArea{ 0 }; // If at one, actor will find random area when instructed
 	float dotProduct_Right;//Helper variable for rotation
 
 	/* Raytracer variables */
@@ -120,7 +120,7 @@ protected:
 	class UBoxComponent* BoxCollider;
 	UPROPERTY(VisibleAnywhere)
 	class USphereComponent* SensingSphere{ nullptr };
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* VisibleMesh;
 
 	UPROPERTY(Editanywhere, Category = "Navigation")
@@ -134,6 +134,7 @@ protected:
 	void MoveAreaCheck(float range);
 	/* Rotates actor towards FVector */
 	void RotateToVector();
+	void RotateToVector(FVector TowardsVector, float Rotation);
 	/* Returns dotProduct of 2 vectors in X , Y */
 	float dotProduct2D(FVector vec1, FVector vec2);
 
