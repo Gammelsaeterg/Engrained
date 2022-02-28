@@ -5,14 +5,14 @@
 
 #include <chrono>
 
-#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Health.h"
 #include "Mina.h"
 #include "NavigationSystemTypes.h"
-#include "Components/SphereComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "DrawDebugHelpers.h"
+
 
 // Sets default values
 AShroobs::AShroobs()
@@ -20,69 +20,151 @@ AShroobs::AShroobs()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Set up the collider for the shroob
-	ShroobCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShroobCollider"));
-	ShroobCollider->InitBoxExtent(FVector(50.f));
-
-	//Sensing Sphere. checking if there is a player near by
-	ShroobSensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
-	ShroobSensingSphere->SetupAttachment(GetRootComponent());
-	ShroobSensingSphere->InitSphereRadius(700.f);
-
-	// Set OurCollider to be the RootComponent
-	RootComponent = ShroobCollider;
-
-	// Set up our visible mesh
-	ShroobVisibleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShroobVisibleMesh"));
-	ShroobVisibleMesh->SetupAttachment(RootComponent);
-    
-
 }
 
 // Called when the game starts or when spawned
 void AShroobs::BeginPlay()
 {
 	Super::BeginPlay();
-	spawnPoint = GetActorLocation();
-	spawnRotation = GetActorRotation();
-	
-	
-	
+
+
 }
 
+void AShroobs::ActorState(float deltatime)
+{
+	switch (States) {
+	case IDLE:			// Idle
+		StateColor = colorIDLE;
+		ActorIDLE(deltatime);
+		break;
+	case SHOCK:			// Shocked
+		StateColor = colorSHOCK;
+		ActorSHOCK(deltatime);
+		break;
+	case HOSTILE:		// Hostile
+		StateColor = colorHOSTILE;
+		ActorHOSTILE(deltatime);
+		break;
+	case AWAREOFPLAYER:	// Aware of player
+		StateColor = colorAWAREOFPLAYER;
+		ActorAWAREOFPLAYER(deltatime);
+		break;
+	case DEATH:			// Death
+		UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
+		break;
+	default:
+		break;
+	}
+}
+
+void AShroobs::ActorIDLE(float deltatime)
+{
+	CurrentLocation = GetActorLocation();
+	CurrentLocation += GetActorForwardVector() * Speed * deltatime;
+	SetActorLocation(CurrentLocation);
+
+
+
+	//UE_LOG(LogTemp, Display, TEXT("Rotate: %s"), (bRotateBack ? TEXT("true") : TEXT("false")));
+	/* Movement across platform */
+	RayTraceSeconds += deltatime;
+	if (RayTraceSeconds > RayTraceTiming) {
+		if (RayTraceActive) {
+			MoveAreaCheck(RayTraceLength);
+
+			/* Draws debugline matching the raytrace */
+			if (bDebugLine) {
+				DrawDebugLine(
+					GetWorld(),
+					this->GetActorLocation(),
+					this->GetActorLocation() - FVector(0, 0, RayTraceLength),
+					FColor(255, 0, 0),
+					false,
+					2.f,
+					0,
+					1.f
+				);
+			}
+		}
+		RayTraceSeconds = 0;
+	}
+	if (bRotateBack) {
+		RotateToVector();
+	}
+
+	if (bDebugPlayerDetection)
+		DetectPlayer(deltatime);
+}
+
+void AShroobs::ActorSHOCK(float deltatime)
+{
+	UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
+	TimeShocked += deltatime;
+	if (TimeShocked > ShockTimer) {
+		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		TimeShocked = 0;
+		States = HOSTILE;
+	}
+}
+
+void AShroobs::ActorHOSTILE(float deltatime)
+{
+	/* If player is not within reach
+		Run timer
+		if timer exceeds x. Go to state AWAREOFPLAYER */
+
+	if (OtherActorWithinReach(PlayerLocation, HostileReach)) {
+		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
+		TimeHostile = 0;
+	}
+	else {
+		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		TimeHostile += deltatime;
+	}
+	if (TimeHostile > HostileTimer) {
+		UE_LOG(LogTemp, Display, TEXT("Player left %s's reach"), *GetName());
+		UE_LOG(LogTemp, Display, TEXT("%s is now AWARE OF PLAYER"), *GetName());
+		States = AWAREOFPLAYER;
+		TimeAware = 0;
+	}
+}
+
+void AShroobs::ActorAWAREOFPLAYER(float deltatime)
+{
+	if (!OtherActorWithinReach(PlayerLocation, HostileReach)) {
+		DrawDebugLineBetweenActors(PlayerLocation, StateColor);
+		UE_LOG(LogTemp, Display, TEXT("TimeAware %f"), TimeAware);
+		TimeAware += deltatime;
+		TimeHostile = 0;
+	}
+	else {
+		DrawDebugLineBetweenActors(PlayerLocation, colorHOSTILE);
+		UE_LOG(LogTemp, Display, TEXT("TimeHostile %f"), TimeHostile);
+		TimeHostile += deltatime;
+		TimeAware = 0;
+	}
+	if (TimeHostile > HostileTimer/2) {
+		UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
+		States = HOSTILE;
+		TimeAware = 0;
+	}
+	if (TimeAware > AwareTimer) {
+		UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
+		States = IDLE;
+		TimeHostile = 0;
+	}
+}
 
 // Called every frame
 void AShroobs::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Seconds += DeltaTime;
-	CurrentLocation = GetActorLocation();
-
-	CurrentLocation += GetActorForwardVector() * forwardSpeed * DeltaTime;
-	SetActorLocation(CurrentLocation);
-
+	//Seconds += DeltaTime;
 	
-if(test == false)
-{
-	if(amountOfRotation <3)
-	{
-		if(Seconds > timeToChangeDirection)
-		{
-			AShroobs::RandRotation();
-			SetActorRotation(newRotation);
-		}
-	}else if(CurrentLocation == spawnPoint)
-	{
-		
-		//amountOfRotation = 0;
-	}else if(CurrentLocation != spawnPoint)
-	{
-		RotationBack = FRotationMatrix::MakeFromX(spawnPoint-GetActorLocation()).Rotator();
-		SetActorRotation(RotationBack);
-		
-	}
-}
+	ActorState(DeltaTime);
+
+
 }
 
 void AShroobs::ImHit()
@@ -90,29 +172,6 @@ void AShroobs::ImHit()
 	Destroy();
 }
 
-void AShroobs::RandRotation()
-{
-		Seconds = 0.f;
-	
-		rotator_Z =  FMath::RandRange(-90.f, 90.f);
-		newRotation = FRotator(0,rotator_Z,0);
-		UE_LOG(LogTemp, Warning, TEXT("test,test"))
-		amountOfRotation++;
-}
 
 
 
-
-void AShroobs::onOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex)
-{
-	AMina* Player = Cast<AMina>(OtherActor);
-
-	if(Player)
-	{
-		FVector MinaLocation = Player->MinaCurrentLocation;
-		RotationBack = FRotationMatrix::MakeFromX(MinaLocation-GetActorLocation()).Rotator();
-		SetActorRotation(RotationBack);
-		test = true;
-	}
-}
