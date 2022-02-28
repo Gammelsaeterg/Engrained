@@ -31,6 +31,8 @@ ANonPlayerActorBase::ANonPlayerActorBase()
 	//Sensing Sphere. checking if there is a player near by
 	SensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
 	SensingSphere->SetupAttachment(GetRootComponent());
+	
+
 
 	// Set up our visible mesh
 	VisibleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShroobVisibleMesh"));
@@ -233,8 +235,8 @@ void ANonPlayerActorBase::DetectPlayer(float deltatime)
 			DrawDebugLineBetweenActors(PlayerLocation, StateColor);
 
 			if (TimeDetected > DetectionTimer) {
-				UE_LOG(LogTemp, Warning, TEXT("Player detected"));
-				UE_LOG(LogTemp, Warning, TEXT("%s is shocked"), *GetName());
+				//UE_LOG(LogTemp, Warning, TEXT("Player detected"));
+				//UE_LOG(LogTemp, Warning, TEXT("%s is shocked"), *GetName());
 				States = SHOCK;
 				TimeDetected = 0;
 			}
@@ -316,7 +318,7 @@ void ANonPlayerActorBase::onOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	if (OtherActor == player){
 		//UE_LOG(LogTemp, Warning, TEXT("Player WITHIN sensingsphere"));
 		if (States == IDLE) {
-			UE_LOG(LogTemp, Display, TEXT("%s is Shocked"), *GetName());
+			//UE_LOG(LogTemp, Display, TEXT("%s is Shocked"), *GetName());
 			States = SHOCK;
 		}
 		if (States == AWAREOFPLAYER) {

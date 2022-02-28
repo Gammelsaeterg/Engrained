@@ -64,6 +64,19 @@ public:
 
 	FVector MinaCurrentLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray <AActor*> SpawnPoints;
+
+	UFUNCTION(BlueprintCallable)
+	void InsertSpawnPoint(AActor* Spawn);
+
+	UFUNCTION(BlueprintCallable)
+	AActor* FindClosestSpawn();
+	//void FindClosestSpawn();
+
+	UFUNCTION(BlueprintCallable)
+	void RespawnPlayer();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -72,6 +85,10 @@ protected:
 	FHitResult RayTracer();
 	/* Hvis RayTracer treffer en actor */
 	void RayTraceHit();
+
+private:
+	/* Finds the vector between two vectors and returns the Magnitude */
+	float LengthBetweenVectors(FVector vec1, FVector vec2);
 
 
 public:

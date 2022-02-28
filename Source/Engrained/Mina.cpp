@@ -76,6 +76,8 @@ void AMina::BeginPlay()
 
 	AttackBox->OnComponentBeginOverlap.AddDynamic(this, &AMina::OnOverlap);
 	CrystalAmmo = 5;
+
+	SpawnPoints.Empty();
 }
 
 FHitResult AMina::RayTracer()
@@ -116,6 +118,7 @@ void AMina::RayTraceHit()
 
 
 
+
 // Called every frame
 void AMina::Tick(float DeltaTime)
 {
@@ -129,6 +132,8 @@ void AMina::Tick(float DeltaTime)
 	MinaCurrentLocation = GetActorLocation();
 	
 	RayTraceHit();
+
+	//FindClosestSpawn();
 }
 
 // Called to bind functionality to input
@@ -309,3 +314,56 @@ void AMina::Right(float Value)
 
 }
 
+
+void AMina::InsertSpawnPoint(AActor* Spawn)
+{
+	for (auto it : SpawnPoints) {
+		if (it == Spawn) {
+			//UE_LOG(LogTemp, Warning, TEXT("SpawnPoint: %s : has already been pushed"), *Spawn->GetName());
+			return;
+		}
+	}
+	SpawnPoints.Push(Spawn);
+	//UE_LOG(LogTemp, Warning, TEXT("Pushed Spawn: %s"), *Spawn->GetName());
+}
+
+AActor* AMina::FindClosestSpawn()
+{
+	AActor* ReturnActor = nullptr;
+	float Length{1000000}, prev{}, tmp{};
+	FVector MinaLocation = GetActorLocation();
+
+	for (auto it : SpawnPoints) {
+		//UE_LOG(LogTemp, Display, TEXT("iterator:: %s"), *it->GetName());
+		
+		FVector SpawnLocation = it->GetActorLocation();
+		tmp = LengthBetweenVectors(MinaLocation, SpawnLocation);
+		//UE_LOG(LogTemp, Display, TEXT("Length between %s and Mina is %f"), *it->GetName(), tmp);
+
+		if (tmp < Length) {
+			Length = tmp;
+			ReturnActor = it;
+		}
+	}
+
+	//if (ReturnActor) {
+	//	UE_LOG(LogTemp, Warning, TEXT("Found: %s : as respawnpoint"), *ReturnActor->GetName());
+	//}
+	//else
+	//	UE_LOG(LogTemp, Error, TEXT("No respawn point found"));
+
+	return ReturnActor;
+}
+
+void AMina::RespawnPlayer()
+{
+	AActor* Respawnpoint = FindClosestSpawn();
+	if (Respawnpoint)
+		SetActorLocation(Respawnpoint->GetActorLocation() + FVector(0, 0, 200));
+}
+
+float AMina::LengthBetweenVectors(FVector vec1, FVector vec2)
+{
+	FVector v = vec1 - vec2;
+	return sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+}
