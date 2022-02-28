@@ -126,6 +126,12 @@ void AShroobs::ActorHOSTILE(float deltatime)
 		Run timer
 		if timer exceeds x. Go to state AWAREOFPLAYER */
 
+	HostileSoundTimer += deltatime;
+	if (HostileSoundTimer > HostileTauntTimer) {
+		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), )
+		HostileSoundTimer = 0;
+	}
+
 	RotateToVector(PlayerLocation, Rotation_Z);
 
 	if (OtherActorWithinReach(PlayerLocation, HostileReach)) {
@@ -183,6 +189,7 @@ void AShroobs::ActorAWAREOFPLAYER(float deltatime)
 		//UE_LOG(LogTemp, Display, TEXT("%s is HOSTILE!"), *GetName());
 		States = HOSTILE;
 		TimeAware = 0;
+		
 	}
 	if (TimeAware > AwareTimer) {
 		//UE_LOG(LogTemp, Display, TEXT("%s is IDLE again"), *GetName());
