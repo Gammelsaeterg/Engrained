@@ -34,4 +34,23 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddPitchInput(float Val);
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray <AActor*> SpawnPoints;
+
+	UFUNCTION(BlueprintCallable)
+	void InsertSpawnPoint(AActor* Spawn);
+
+	UFUNCTION(BlueprintCallable)
+	AActor* FindClosestSpawn();
+
+	/* Finds the vector between two vectors and returns the Magnitude */
+	float LengthBetweenVectors(FVector vec1, FVector vec2);
+
+	UFUNCTION(BlueprintCallable)
+	void RespawnPlayer();
+
+	UFUNCTION(BlueprintCallable)
+	void SetInitialSpawn();
 };
