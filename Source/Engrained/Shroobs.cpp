@@ -63,7 +63,7 @@ void AShroobs::ActorIDLE(float deltatime)
 	CurrentLocation += GetActorForwardVector() * Speed * deltatime;
 	SetActorLocation(CurrentLocation);
 
-
+	
 
 	//UE_LOG(LogTemp, Display, TEXT("Rotate: %s"), (bRotateBack ? TEXT("true") : TEXT("false")));
 	/* Movement across platform */
@@ -88,8 +88,19 @@ void AShroobs::ActorIDLE(float deltatime)
 		}
 		RayTraceSeconds = 0;
 	}
+	/* Gives a random location related to the shroobs area of movement */
+	
+
 	if (bRotateBack) {
-		RotateToVector();
+		//FVector MoveToVector;
+		//if (!FindRandomArea) {
+		//	MoveToVector = MoveAreaVector + FVector(FMath::RandRange(
+		//		-RotationPointRandomRange, RotationPointRandomRange),
+		//		FMath::RandRange(-RotationPointRandomRange, RotationPointRandomRange), 0);
+		//	FindRandomArea++;
+		//}
+		RotateToVector(MoveAreaVector, 15.f);
+		//RotateToVector();
 	}
 
 	if (bDebugPlayerDetection)
@@ -98,6 +109,8 @@ void AShroobs::ActorIDLE(float deltatime)
 
 void AShroobs::ActorSHOCK(float deltatime)
 {
+	RotateToVector(PlayerLocation, Rotation_Z);
+
 	UE_LOG(LogTemp, Display, TEXT("Shocked: %f"), TimeShocked);
 	TimeShocked += deltatime;
 	if (TimeShocked > ShockTimer) {
@@ -163,8 +176,6 @@ void AShroobs::Tick(float DeltaTime)
 	//Seconds += DeltaTime;
 	
 	ActorState(DeltaTime);
-
-
 }
 
 void AShroobs::ImHit()
