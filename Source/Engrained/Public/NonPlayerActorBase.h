@@ -57,7 +57,7 @@ protected:
 	FVector Line;
 
 	/* Movement Variables */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed = 70;
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float RotationPointRandomRange = 60.f;
@@ -132,6 +132,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	/* Actor's components */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* BoxCollider;
 	UPROPERTY(VisibleAnywhere)

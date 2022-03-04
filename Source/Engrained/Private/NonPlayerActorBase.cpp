@@ -8,6 +8,7 @@
 #include "NonPlayerActorBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/SceneComponent.h"
 #include "EnemySpawner.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 #include "PxMathUtils.h"
@@ -21,12 +22,15 @@ ANonPlayerActorBase::ANonPlayerActorBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
+
 	// Set up the collider for the shroob
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->InitBoxExtent(FVector(50.f));
 
 	// Set OurCollider to be the RootComponent
-	RootComponent = BoxCollider;
+	//RootComponent = BoxCollider;
 
 	//Sensing Sphere. checking if there is a player near by
 	SensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
