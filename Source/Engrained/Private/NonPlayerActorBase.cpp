@@ -61,7 +61,7 @@ void ANonPlayerActorBase::BeginPlay()
 		movAreaActor = Cast<AActor>(movArea);
 		MoveAreaVector = movAreaActor->GetActorLocation();
 	}
-	FVector Forward = GetActorForwardVector();
+	//FVector Forward = GetActorForwardVector();
 
 }
 
@@ -220,6 +220,26 @@ float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
 	);
 
 	return (a / (b * c));
+}
+
+FRotator ANonPlayerActorBase::RollRotate()
+{
+	/* RollRotate*/
+	FVector Forward = GetActorForwardVector();
+	TurnVector = LastForward - Forward;
+	float angle = dotProduct2D(Forward, TurnVector);
+	angle = angle * (180 / PI);
+	float turnside = dotProduct2D(GetActorRightVector(), TurnVector);
+	if (turnside >= 0)
+		angle = -angle;
+
+	//AddActorLocalRotation(FRotator{ 0,0,angle });
+	UE_LOG(LogTemp, Display, TEXT("Roll angle: %f"), angle);
+
+
+	LastForward = Forward;
+
+	return FRotator{ angle,0,0 };
 }
 
 void ANonPlayerActorBase::DetectPlayer(float deltatime)

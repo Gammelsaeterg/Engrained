@@ -14,4 +14,11 @@ class ENGRAINED_API AWhaleshroom : public ANonPlayerActorBase
 {
 	GENERATED_BODY()
 	
+public:
+	AWhaleshroom();
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
 };
