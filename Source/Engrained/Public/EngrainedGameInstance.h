@@ -28,8 +28,4 @@ public:
 	float MusicVolume{ .8f };
 
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-		void ChangeMasterVolume();
-
-
 };
