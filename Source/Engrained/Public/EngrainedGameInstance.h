@@ -15,13 +15,21 @@ class ENGRAINED_API UEngrainedGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 public:
+
+
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float MasterVolume{ 80.f };
+	float MasterVolume{ .8f };
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float EffectsVolume{ 80.f };
+	float EffectsVolume{ .8f };
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float MusicVolume{ 80.f };
+	float MusicVolume{ .8f };
+
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void ChangeMasterVolume();
+
+
 };
