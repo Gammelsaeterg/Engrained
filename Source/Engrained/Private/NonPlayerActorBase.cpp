@@ -48,7 +48,9 @@ void ANonPlayerActorBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (GetWorld()->GetFirstPlayerController()) {
+		player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn()); 
+	}
 
 	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::)
 
@@ -71,10 +73,10 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-
-	PlayerLocation = player->GetActorLocation();
-	//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
-
+	if (player) {
+		PlayerLocation = player->GetActorLocation();
+		//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
+	}
 	ShowStateColor();
 }
 
