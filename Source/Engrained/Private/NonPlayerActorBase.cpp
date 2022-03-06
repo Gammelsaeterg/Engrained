@@ -28,6 +28,7 @@ ANonPlayerActorBase::ANonPlayerActorBase()
 	// Set up the collider for the shroob
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->InitBoxExtent(FVector(50.f));
+	BoxCollider->SetRelativeLocation(FVector{ 0,0,0 });
 
 	// Set OurCollider to be the RootComponent
 	//RootComponent = BoxCollider;
@@ -35,12 +36,14 @@ ANonPlayerActorBase::ANonPlayerActorBase()
 	//Sensing Sphere. checking if there is a player near by
 	SensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
 	SensingSphere->SetupAttachment(GetRootComponent());
+	SensingSphere->SetRelativeLocation(FVector{ 0,0,0 });
 	
 
 
 	// Set up our visible mesh
 	VisibleMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ShroobVisibleMesh"));
 	VisibleMesh->SetupAttachment(RootComponent);
+	VisibleMesh->SetRelativeLocation(FVector{ 0,0,0 });
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +51,9 @@ void ANonPlayerActorBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (GetWorld()->GetFirstPlayerController()) {
+		player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	}
 
 	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::)
 
@@ -71,8 +76,8 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-
-	PlayerLocation = player->GetActorLocation();
+	if (player)
+		PlayerLocation = player->GetActorLocation();
 	//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
 
 	ShowStateColor();
