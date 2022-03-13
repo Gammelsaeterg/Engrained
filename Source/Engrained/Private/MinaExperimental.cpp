@@ -80,6 +80,12 @@ AActor* AMinaExperimental::FindClosestSpawn()
 	float Length{ 1000000 }, prev{}, tmp{};
 	FVector MinaLocation = GetActorLocation();
 
+	if (SpawnPoints.Num() == 0) {
+		//UE_LOG(LogTemp, Display, TEXT("No spawn points available"));
+
+		return ReturnActor;
+	}
+
 	for (auto it : SpawnPoints) {
 		//UE_LOG(LogTemp, Display, TEXT("iterator:: %s"), *it->GetName());
 
