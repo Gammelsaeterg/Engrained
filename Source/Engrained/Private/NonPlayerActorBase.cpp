@@ -8,6 +8,7 @@
 #include "NonPlayerActorBase.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/SceneComponent.h"
 #include "EnemySpawner.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 #include "PxMathUtils.h"
@@ -21,12 +22,15 @@ ANonPlayerActorBase::ANonPlayerActorBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
+
 	// Set up the collider for the shroob
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	BoxCollider->InitBoxExtent(FVector(50.f));
 
 	// Set OurCollider to be the RootComponent
-	RootComponent = BoxCollider;
+	//RootComponent = BoxCollider;
 
 	//Sensing Sphere. checking if there is a player near by
 	SensingSphere = CreateDefaultSubobject<USphereComponent>(TEXT("ShroobSenesingSphere"));
@@ -44,7 +48,9 @@ void ANonPlayerActorBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (GetWorld()->GetFirstPlayerController()) {
+		player = Cast<AActor>(GetWorld()->GetFirstPlayerController()->GetPawn()); 
+	}
 
 	//BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ANonPlayerActorBase::)
 
@@ -57,7 +63,7 @@ void ANonPlayerActorBase::BeginPlay()
 		movAreaActor = Cast<AActor>(movArea);
 		MoveAreaVector = movAreaActor->GetActorLocation();
 	}
-	FVector Forward = GetActorForwardVector();
+	//FVector Forward = GetActorForwardVector();
 
 }
 
@@ -67,10 +73,10 @@ void ANonPlayerActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-
-	PlayerLocation = player->GetActorLocation();
-	//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
-
+	if (player) {
+		PlayerLocation = player->GetActorLocation();
+		//UE_LOG(LogTemp, Display, TEXT("Player: %s"), *PlayerLocation.ToString());
+	}
 	ShowStateColor();
 }
 
@@ -216,6 +222,26 @@ float ANonPlayerActorBase::dotProduct2D(FVector vec1, FVector vec2)
 	);
 
 	return (a / (b * c));
+}
+
+FRotator ANonPlayerActorBase::RollRotate()
+{
+	/* RollRotate*/
+	FVector Forward = GetActorForwardVector();
+	TurnVector = LastForward - Forward;
+	float angle = dotProduct2D(Forward, TurnVector);
+	angle = angle * (180 / PI);
+	float turnside = dotProduct2D(GetActorRightVector(), TurnVector);
+	if (turnside >= 0)
+		angle = -angle;
+
+	//AddActorLocalRotation(FRotator{ 0,0,angle });
+	UE_LOG(LogTemp, Display, TEXT("Roll angle: %f"), angle);
+
+
+	LastForward = Forward;
+
+	return FRotator{ angle,0,0 };
 }
 
 void ANonPlayerActorBase::DetectPlayer(float deltatime)

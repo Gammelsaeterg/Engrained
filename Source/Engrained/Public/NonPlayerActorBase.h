@@ -56,8 +56,12 @@ protected:
 	/* Testing field of vision */
 	FVector Line;
 
+	/* The turn amount between last ForwardVector, and current ForwardVector */
+	FVector TurnVector{};
+	FVector LastForward{};
+
 	/* Movement Variables */
-	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float Speed = 70;
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float RotationPointRandomRange = 60.f;
@@ -132,6 +136,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	/* Actor's components */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere)
 	class UBoxComponent* BoxCollider;
 	UPROPERTY(VisibleAnywhere)
@@ -154,6 +160,11 @@ protected:
 	void RotateToVector(FVector TowardsVector, float Rotation);
 	/* Returns dotProduct of 2 vectors in X , Y */
 	float dotProduct2D(FVector vec1, FVector vec2);
+	/* Find how far the actor rotates to turn each frame */
+	void FindTurnRate();
+	/* When the actor rotates to turn, it tilts accordingly */
+	UFUNCTION(BlueprintCallable)
+	FRotator RollRotate();
 
 
 	void DetectPlayer(float deltatime);
