@@ -17,6 +17,7 @@
 #define colorSHOCK FColor{255, 255, 0}
 #define colorHOSTILE FColor{255, 0, 0}
 #define colorAWAREOFPLAYER FColor{0, 0, 255}
+#define colorDEATH FColor {0, 0, 0};
 
 UCLASS()
 class ENGRAINED_API ANonPlayerActorBase : public APawn
@@ -208,4 +209,10 @@ private:
 public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetTargetActor();
+
+	UFUNCTION(BlueprintCallable)
+		void Death();
+	UFUNCTION(BlueprintImplementableEvent)
+		void EventDeath();
+
 };
