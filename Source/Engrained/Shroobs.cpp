@@ -54,9 +54,7 @@ void AShroobs::ActorState(float deltatime)
 		EventHostile(false);
 		break;
 	case DEATH:			// Death
-		//UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
-		StateColor = colorDEATH;
-		EventDeath();
+		UE_LOG(LogTemp, Warning, TEXT("%s has died"), *GetName());
 		break;
 	default:
 		break;

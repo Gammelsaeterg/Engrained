@@ -370,11 +370,6 @@ void ANonPlayerActorBase::boxEndOverlap(UPrimitiveComponent* OverlappedComponent
 {
 }
 
-void ANonPlayerActorBase::Death()
-{
-	States = DEATH;
-}
-
 float ANonPlayerActorBase::VectorMagnitude(FVector vec)
 {
 	return sqrt(vec.X * vec.X + vec.Y * vec.Y + vec.Z * vec.Z);
