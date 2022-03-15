@@ -36,7 +36,7 @@ void AMinaExperimental::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void AMinaExperimental::AddYawInput(float Val)
 {
-	PlayerCameraRotation.Yaw += Val * 70 * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, yaw scale
+	PlayerCameraRotation.Yaw += Val * 45 * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, yaw scale
 }
 
 void AMinaExperimental::AddPitchInput(float Val)
