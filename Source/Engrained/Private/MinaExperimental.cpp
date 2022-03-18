@@ -36,7 +36,7 @@ void AMinaExperimental::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void AMinaExperimental::AddYawInput(float Val)
 {
-	PlayerCameraRotation.Yaw += Val * 45 * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, yaw scale
+	PlayerCameraRotation.Yaw += Val * 70 * GetWorld()->GetDeltaSeconds(); //TODO: Customizable variable, yaw scale
 }
 
 void AMinaExperimental::AddPitchInput(float Val)
@@ -79,6 +79,12 @@ AActor* AMinaExperimental::FindClosestSpawn()
 	AActor* ReturnActor = nullptr;
 	float Length{ 1000000 }, prev{}, tmp{};
 	FVector MinaLocation = GetActorLocation();
+
+	if (SpawnPoints.Num() == 0) {
+		//UE_LOG(LogTemp, Display, TEXT("No spawn points available"));
+
+		return ReturnActor;
+	}
 
 	for (auto it : SpawnPoints) {
 		//UE_LOG(LogTemp, Display, TEXT("iterator:: %s"), *it->GetName());
