@@ -15,6 +15,5 @@ class ENGRAINED_API ACrystalGameCORRECTGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable)
-	void GetScenePawns();
+
 };

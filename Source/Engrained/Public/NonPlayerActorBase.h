@@ -206,6 +206,8 @@ private:
 
 	float VectorMagnitude(FVector vec);
 
+	
+
 public:
 	UFUNCTION(BlueprintCallable)
 	AActor* GetTargetActor();
