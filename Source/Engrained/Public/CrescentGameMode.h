@@ -20,9 +20,24 @@ private:
 
 	void HandleGameOver(bool PlayerWon);
 
+	TSubclassOf<APawn> ClassToFind;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<APawn*> ScenePawns;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<FVector> ScenePawnsLocations;
+
+
+
 public:
 
 	void ActorDied(AActor* DeadActor);
+
+	UFUNCTION(BlueprintCallable)
+	void RememberPawn(APawn* pawn);
+
+	UFUNCTION(BlueprintCallable)
+	void RespawnPawns();
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,5 +46,11 @@ protected:
 		void GameStart();
 	UFUNCTION(BlueprintImplementableEvent)
 		void GameOver(bool PlayerWond);
+
+	UFUNCTION(BlueprintCallable)
+		void GetScenePawns();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void RespawnPawnsEvent();
 
 };

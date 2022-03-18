@@ -2,6 +2,7 @@
 
 
 #include "CrescentGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 void ACrescentGameMode::BeginPlay()
 {
@@ -22,5 +23,38 @@ void ACrescentGameMode::HandleGameOver(bool PlayerWon)
 {
 
 }
+
+void ACrescentGameMode::RememberPawn(APawn* pawn)
+{
+	ScenePawns.Add(pawn);
+	ScenePawnsLocations.Add(pawn->GetActorLocation());
+}
+
+void ACrescentGameMode::RespawnPawns()
+{
+	RespawnPawnsEvent();
+
+}
+
+void ACrescentGameMode::GetScenePawns()
+{
+	//for (TActorIterator<AActor> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	//{
+	//	// Follow iterator object to my actual actor pointer
+	//	AActor* MyActor = *ActorItr;
+	//}
+
+	const UWorld* MyWorld = GetWorld();
+
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ClassToFind, ScenePawns);
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), ClassToFind, APawn::StaticClass());
+	//UGameplayStatics::GetAllActorsOfClass(GetWorld(), APawn::StaticClass(), ScenePawns);
+
+	//TArray<APawn*> pawns;
+	//UGameplayStatics::GetAllActorsOfClass
+
+}
+
+
 
 

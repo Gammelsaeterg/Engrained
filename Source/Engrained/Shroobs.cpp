@@ -217,6 +217,9 @@ void AShroobs::ImHit()
 	Destroy();
 }
 
-
+void AShroobs::SetHostile()
+{
+	States = HOSTILE;
+}
 
 
