@@ -139,9 +139,9 @@ protected:
 	/* Actor's components */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USceneComponent* Root;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UBoxComponent* BoxCollider;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USphereComponent* SensingSphere{ nullptr };
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* VisibleMesh;
