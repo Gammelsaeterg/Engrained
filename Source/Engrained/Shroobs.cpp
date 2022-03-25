@@ -221,5 +221,9 @@ void AShroobs::SetHostile()
 {
 	States = HOSTILE;
 }
+void AShroobs::SetIdle()
+{
+	States = IDLE;
+}
 
 
