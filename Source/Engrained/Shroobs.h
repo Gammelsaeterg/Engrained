@@ -33,7 +33,9 @@ protected:
 	void ActorAWAREOFPLAYER(float deltatime) override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetHostile();
+		void SetHostile();	
+	UFUNCTION(BlueprintCallable)
+		void SetIdle();
 
 private:
 	float HostileTauntTimer{ 5.f };

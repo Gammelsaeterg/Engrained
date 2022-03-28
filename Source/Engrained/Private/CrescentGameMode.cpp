@@ -28,6 +28,7 @@ void ACrescentGameMode::RememberPawn(APawn* pawn)
 {
 	ScenePawns.Add(pawn);
 	ScenePawnsLocations.Add(pawn->GetActorLocation());
+	UE_LOG(LogTemp, Warning, TEXT("Gamemode remembering: %s"), *pawn->GetName());
 }
 
 void ACrescentGameMode::RespawnPawns()
