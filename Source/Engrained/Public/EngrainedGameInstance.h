@@ -28,4 +28,14 @@ public:
 	float MusicVolume{ .8f };
 
 
+	UFUNCTION(BlueprintCallable)
+		void SetSpawnPoint(AActor* Spawn);
+	UFUNCTION(BlueprintCallable)
+		AActor* ReturnSpawnPoint();
+	//UFUNCTION(BlueprintCallable)
+	//	void PlayerRespawn();
+
+private:
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	AActor* SpawnPoint{ nullptr };
 };
